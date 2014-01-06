@@ -7,6 +7,6 @@ def index(request):
         remote_ip = request.META.get("REMOTE_ADDR")
         info = UserInformation(uuid=uid, ip_address=remote_ip)
         info.save()
-        return HttpResponse("statistics %s" % uid)
+        return HttpResponse("OK")
     else:
         return HttpResponse("failed")
