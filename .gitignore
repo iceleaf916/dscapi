@@ -1,0 +1,14 @@
+*.log
+*.pot
+*.pyc
+*.swp
+local_settings.py
+data
+static/admin/
+static/css/
+static/img/
+static/js/
+media/*
+migrations
+temp/
+db.sqlite3
