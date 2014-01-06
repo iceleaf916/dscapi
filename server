@@ -1,0 +1,61 @@
+#!/bin/sh
+CUR_DIR=`dirname $0`
+SOCKET=$CUR_DIR/run/icelog.sock
+WSGIPID=$CUR_DIR/run/icelog.pid
+
+do_start(){
+    if test -r $WSGIPID ; then
+        echo "Server is already running!"
+        exit 0
+    fi
+    echo -n "Starting uWSGI..."
+    $CUR_DIR/virtualenv/bin/uwsgi \
+        -p 5 \
+        --wsgi-file=$CUR_DIR/icelog/wsgi.py \
+        -H $CUR_DIR/virtualenv/ \
+        --chdir=$CUR_DIR \
+        -s $SOCKET \
+        --pidfile=$WSGIPID \
+        --daemonize=$CUR_DIR/logs/uwsgi.log
+    echo "[done]"
+}
+do_stop(){
+    if ! test -r $WSGIPID ; then
+        echo "Server is not running!"
+        exit 0
+    fi
+    echo -n "Stopping uWSGI..."
+	kill -2 `cat -- $WSGIPID`
+	rm -f -- $WSGIPID
+	rm -f -- $SOCKET
+    echo "[done]"
+}
+show_status(){
+    if test -r $WSGIPID ; then
+        echo "uWSGI is running."
+    else
+        echo "uWSGI is not running."
+    fi
+}
+
+case "$1" in
+ start)
+     do_start
+ ;;
+ stop)
+     do_stop
+ ;;
+ restart)
+     do_stop
+     do_start
+ ;;
+ status)
+     show_status
+ ;;
+ *)
+ echo "Usage: server {start|stop|restart|status}" >&2
+ exit 3
+ ;;
+esac
+
+exit 0

@@ -12,3 +12,6 @@ media/*
 migrations
 temp/
 db.sqlite3
+/run
+/logs
+/virtualenv
