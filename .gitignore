@@ -15,3 +15,4 @@ db.sqlite3
 /run
 /logs
 /virtualenv
+/update_db.sh
