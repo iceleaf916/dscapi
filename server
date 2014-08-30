@@ -11,7 +11,7 @@ do_start(){
     fi
     echo -n "Starting uWSGI..."
     $CUR_DIR/virtualenv/bin/uwsgi \
-        -p 5 \
+        -p 1 \
         --wsgi-file=$CUR_DIR/dscapi/wsgi.py \
         -H $CUR_DIR/virtualenv/ \
         --chdir=$CUR_DIR \
@@ -55,7 +55,7 @@ case "$1" in
  ;;
  *)
  echo "Usage: server {start|stop|restart|status}" >&2
- exit 3
+ exit 0
  ;;
 esac
 

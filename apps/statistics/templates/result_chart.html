@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>DSC User Statistics</title>
+	{% load static %}
+	{% get_static_prefix as STATIC_PREFIX %}
+	<script type="text/javascript" src="{{ STATIC_PREFIX }}js/dygraph-combined.js" ></script>
+</head>
+<body>
+	<div style="width:960px; margin:0 auto;">
+		<h3 style="text-align: center">User Statistics Chart</h3>
+		<div id="chart" style="width:100%; height:400px;"></div>
+	</div>
+	<script type="text/javascript">
+	var chartDiv = document.getElementById("chart");
+	var csv_data = "Date,Number\n";
+	{% for d in data %}
+		csv_data += "{{ d.date }},{{ d.value }}\n";
+	{% endfor %}
+	new Dygraph(
+		chartDiv, 
+		csv_data,
+		{
+			rollPeriod: 1,
+			showRoller: true
+		}
+		);
+</script>
+</body>
+</html>

@@ -23,6 +23,8 @@
 from django.http import HttpResponse
 from apps.statistics.models import UserInformation
 from apps.statistics.ip_search import IpLocater, string2ip
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 import os
 
@@ -66,3 +68,21 @@ def show_today(request):
         return_str += "%s: %s<br />" % (s, n)
     return_str += "</p>"
     return HttpResponse(return_str)
+
+def show_chart(request):
+    all_infos = UserInformation.objects.all().order_by("last_date")
+    date_statitics = {}
+    for info in all_infos:
+        last_date = info.last_date
+        key = last_date.strftime("%Y-%m-%d")
+        if date_statitics.get(key):
+            date_statitics[key] += 1
+        else:
+            date_statitics[key] = 1
+
+    labels = sorted(date_statitics.keys())
+    data = [dict(date=label, value=date_statitics[label]) for label in labels]
+    return render_to_response(
+        'result_chart.html',
+        {"data": data},
+        context_instance=RequestContext(request))
