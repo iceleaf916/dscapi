@@ -20,11 +20,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
-from apps.statistics.models import UserInformation
+from apps.statistics.models import UserInformation, InfoStatistics
 from apps.statistics.ip_search import IpLocater, string2ip
+
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.core.exceptions import ObjectDoesNotExist
 
 import os
 
@@ -34,12 +36,18 @@ def index(request):
         remote_ip = request.META.get("REMOTE_ADDR")
         info = UserInformation(uuid=uid, ip_address=remote_ip)
         info.save()
+        cur_date = info.last_date.date()
+        try:
+            info_statistics = InfoStatistics.objects.get(date=cur_date)
+            info_statistics.number += 1
+        except ObjectDoesNotExist:
+            info_statistics = InfoStatistics(date=cur_date, number=1)
+        info_statistics.save()
         return HttpResponse("OK")
     else:
         return HttpResponse("failed")
 
 def show_today(request):
-    date = request.GET.get('date')
     all_info = UserInformation.objects.all().order_by("-last_date")
     ip_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "qqwry.dat")
     ip_locater = IpLocater(ip_data_path)
@@ -70,18 +78,13 @@ def show_today(request):
     return HttpResponse(return_str)
 
 def show_chart(request):
-    all_infos = UserInformation.objects.all().order_by("last_date")
-    date_statitics = {}
+    all_infos = InfoStatistics.objects.all().order_by("date")
+    data = []
     for info in all_infos:
-        last_date = info.last_date
+        last_date = info.date
         key = last_date.strftime("%Y-%m-%d")
-        if date_statitics.get(key):
-            date_statitics[key] += 1
-        else:
-            date_statitics[key] = 1
+        data.append(dict(date=key, value=info.number))
 
-    labels = sorted(date_statitics.keys())
-    data = [dict(date=label, value=date_statitics[label]) for label in labels]
     return render_to_response(
         'result_chart.html',
         {"data": data},

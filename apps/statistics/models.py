@@ -8,3 +8,6 @@ class UserInformation(models.Model):
     def __unicode__(self):
         return "%s@%s" % (self.uuid, self.ip_address)
 
+class InfoStatistics(models.Model):
+    date = models.DateField()
+    number = models.IntegerField()
